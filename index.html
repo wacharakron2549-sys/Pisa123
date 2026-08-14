@@ -2,9 +2,9 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>PISA SPARK - เลือกวิชา</title>
-    <!-- นำเข้าฟอนต์น่ารักแนวเกม/การ์ตูน -->
+    <!-- ฟอนต์แนวการ์ตูน -->
     <link href="https://fonts.googleapis.com/css2?family=Mali:wght@600;700;800&display=swap" rel="stylesheet">
     <style>
         * {
@@ -14,75 +14,55 @@
         }
 
         body {
-            /* แก้ไขตำแหน่งโฟกัสให้อยู่ด้านบน ไม่โดนตัดข้อความ */
-            background-image: url('bg3.png');
-            background-size: cover;
-            background-position: center top; /* โฟกัสหัวข้อด้านบน */
-            background-repeat: no-repeat;
-            background-attachment: fixed;
             width: 100vw;
             height: 100vh;
             overflow: hidden;
             position: relative;
             font-family: 'Mali', cursive, sans-serif;
+
+            /* ค่าเริ่มต้น: จอคอมพิวเตอร์ (ใช้ bg3.png แนวนอน) */
+            background-image: url('bg3.png');
+            background-size: cover;
+            background-position: center bottom;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
         }
 
-        /* --- แถบปุ่มควบคุมด้านบนขวา (เสียง + ภาษา) --- */
-        .top-controls {
+        /* --- ปุ่มเปิด/ปิดเสียง (มุมบนขวา) --- */
+        .music-btn {
             position: absolute;
             top: 20px;
             right: 20px;
-            display: flex;
-            gap: 12px;
-            z-index: 100;
-        }
-
-        /* สไตล์ปุ่มกลม 3D */
-        .circle-btn {
-            width: 55px;
-            height: 55px;
+            width: 50px;
+            height: 50px;
             background: #ffffff;
-            border: 3.5px solid #222222;
+            border: 3px solid #222222;
             border-radius: 50%;
             box-shadow: 0 4px 0 #222222, 0 6px 10px rgba(0, 0, 0, 0.2);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 22px;
-            font-weight: 800;
             cursor: pointer;
             outline: none;
             transition: transform 0.15s ease, box-shadow 0.15s ease;
+            z-index: 100;
             user-select: none;
-            color: #222222;
         }
 
-        /* ปุ่มภาษา (สไตล์สีทองสดใส) */
-        .lang-btn {
-            background: radial-gradient(circle at 35% 30%, #fff176 0%, #fbc02d 60%, #f57f17 100%);
-            border-color: #5d3900;
-            box-shadow: 0 4px 0 #5d3900, 0 6px 10px rgba(0, 0, 0, 0.2);
-            color: #4a2800;
-            font-size: 18px;
-        }
-
-        .circle-btn:hover {
+        .music-btn:hover {
             transform: scale(1.08);
         }
 
-        .circle-btn:active {
+        .music-btn:active {
             transform: translateY(3px);
             box-shadow: 0 1px 0 #222222;
         }
 
-        .lang-btn:active {
-            box-shadow: 0 1px 0 #5d3900;
-        }
-
-        /* --- คอนเทนเนอร์ปุ่มหมวดวิชา --- */
+        /* --- คอนเทนเนอร์ปุ่มเลือกวิชา (สำหรับคอมพิวเตอร์) --- */
         .category-container {
             position: absolute;
-            bottom: 6vh; /* ปรับระดับให้ตรงกับช่วงเข่าพอดี */
+            bottom: 35px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
@@ -92,92 +72,98 @@
             z-index: 20;
             width: 90%;
             max-width: 900px;
-            flex-wrap: wrap;
         }
 
-        /* สไตล์ปุ่มกดแนวการ์ตูน 3 มิติ */
+        /* สไตล์ปุ่มกด 3D */
         .subject-btn {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
             text-decoration: none;
-            padding: 14px 26px;
+            padding: 14px 24px;
             font-size: 22px;
             font-weight: 800;
             color: #ffffff;
-            border: 4px solid #ffffff;
+            border: 3.5px solid #ffffff;
             border-radius: 50px;
             text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.4);
             cursor: pointer;
             transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             user-select: none;
             flex: 1;
-            min-width: 220px;
-            max-width: 270px;
+            min-width: 180px;
+            max-width: 260px;
         }
 
-        /* 1. ปุ่มวิทยาศาสตร์ */
+        /* ปุ่มวิทยาศาสตร์ (เขียว) */
         .btn-science {
             background: linear-gradient(180deg, #2ed573 0%, #10ac84 100%);
-            box-shadow: 0 8px 0 #0a6950, 0 12px 16px rgba(0, 0, 0, 0.35);
+            box-shadow: 0 7px 0 #0a6950, 0 10px 15px rgba(0, 0, 0, 0.3);
         }
 
-        /* 2. ปุ่มคณิตศาสตร์ */
+        /* ปุ่มคณิตศาสตร์ (ฟ้า) */
         .btn-math {
             background: linear-gradient(180deg, #3498db 0%, #2980b9 100%);
-            box-shadow: 0 8px 0 #1c5982, 0 12px 16px rgba(0, 0, 0, 0.35);
+            box-shadow: 0 7px 0 #1c5982, 0 10px 15px rgba(0, 0, 0, 0.3);
         }
 
-        /* 3. ปุ่มการอ่าน */
+        /* ปุ่มการอ่าน (ส้มอมชมพู) */
         .btn-reading {
             background: linear-gradient(180deg, #ff7675 0%, #d63031 100%);
-            box-shadow: 0 8px 0 #8b1d1e, 0 12px 16px rgba(0, 0, 0, 0.35);
+            box-shadow: 0 7px 0 #8b1d1e, 0 10px 15px rgba(0, 0, 0, 0.3);
         }
 
         .subject-btn:hover {
-            transform: translateY(-4px) scale(1.04);
+            transform: translateY(-4px) scale(1.03);
         }
 
         .subject-btn:active {
-            transform: translateY(6px);
-            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.6), 0 4px 6px rgba(0, 0, 0, 0.2) !important;
+            transform: translateY(5px);
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.5) !important;
         }
 
         .icon {
-            font-size: 26px;
+            font-size: 24px;
             filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3));
         }
 
-        /* รองรับหน้าจอมือถือ */
-        @media (max-width: 768px) {
-            .top-controls {
-                top: 15px;
-                right: 15px;
-                gap: 8px;
+        /* ========================================================
+           📱 ปรับการแสดงผลสำหรับโทรศัพท์มือถือ (หน้าจอแนวตั้ง / กว้าง < 768px)
+           ======================================================== */
+        @media (max-width: 768px), (orientation: portrait) {
+            body {
+                /* สลับไปใช้รูปภาพแนวตั้ง bg-mobile.png */
+                background-image: url('bg-mobile.png');
+                background-position: center top;
+                background-size: cover;
             }
 
-            .circle-btn {
-                width: 46px;
-                height: 46px;
+            .music-btn {
+                top: 15px;
+                right: 15px;
+                width: 44px;
+                height: 44px;
                 font-size: 18px;
             }
 
-            .lang-btn {
-                font-size: 15px;
-            }
-
+            /* จัดเรียงปุ่มเป็นแนวตั้ง เรียงลงมาตรงช่วงล่างหน้าจอ */
             .category-container {
-                bottom: 4vh;
-                gap: 10px;
+                bottom: 25px;
+                flex-direction: column;
+                gap: 12px;
+                width: 82%;
+                max-width: 320px;
             }
 
             .subject-btn {
-                padding: 10px 16px;
-                font-size: 17px;
-                min-width: 140px;
+                width: 100%;
+                max-width: 100%;
+                padding: 10px 18px;
+                font-size: 18px;
+                border-radius: 40px;
                 border-width: 3px;
-                box-shadow: 0 5px 0 rgba(0,0,0,0.3);
+                box-shadow: 0 5px 0 rgba(0, 0, 0, 0.3);
             }
 
             .icon {
@@ -188,13 +174,10 @@
 </head>
 <body>
 
-    <!-- แถบปุ่มควบคุมด้านบนขวา -->
-    <div class="top-controls">
-        <button id="langToggle" class="circle-btn lang-btn" title="เปลี่ยนภาษา / Switch Language">TH</button>
-        <button id="musicToggle" class="circle-btn" title="เปิด/ปิดเสียง">🔊</button>
-    </div>
+    <!-- ปุ่มเปิด/ปิดเสียง -->
+    <button id="musicToggle" class="music-btn" title="เปิด/ปิดเสียง">🔊</button>
 
-    <!-- ไฟล์เสียงพื้นหลัง -->
+    <!-- ไฟล์เพลง -->
     <audio id="bgMusic" loop>
         <source src="bgm.mp3" type="audio/mpeg">
     </audio>
@@ -203,21 +186,21 @@
     <div class="category-container">
         <a href="science.html" class="subject-btn btn-science">
             <span class="icon">🧪</span>
-            <span id="txtScience">วิทยาศาสตร์</span>
+            <span>วิทยาศาสตร์</span>
         </a>
 
         <a href="math.html" class="subject-btn btn-math">
             <span class="icon">📐</span>
-            <span id="txtMath">คณิตศาสตร์</span>
+            <span>คณิตศาสตร์</span>
         </a>
 
         <a href="read.html" class="subject-btn btn-reading">
             <span class="icon">📖</span>
-            <span id="txtReading">การอ่าน</span>
+            <span>การอ่าน</span>
         </a>
     </div>
 
-    <!-- สคริปต์ควบคุมเสียงและภาษา -->
+    <!-- สคริปต์ควบคุมเสียงเพลง -->
     <script>
         const audio = document.getElementById('bgMusic');
         const toggleBtn = document.getElementById('musicToggle');
@@ -238,6 +221,7 @@
 
         toggleBtn.addEventListener('click', toggleAudio);
 
+        // เล่นเพลงอัตโนมัติเมื่อกดหน้าจอครั้งแรก
         function startOnFirstClick() {
             if (!isPlaying) {
                 audio.play().then(() => {
@@ -248,39 +232,6 @@
             document.removeEventListener('click', startOnFirstClick);
         }
         document.addEventListener('click', startOnFirstClick);
-
-        const langBtn = document.getElementById('langToggle');
-        const txtScience = document.getElementById('txtScience');
-        const txtMath = document.getElementById('txtMath');
-        const txtReading = document.getElementById('txtReading');
-        
-        let currentLang = 'th';
-
-        const translations = {
-            th: {
-                science: "วิทยาศาสตร์",
-                math: "คณิตศาสตร์",
-                reading: "การอ่าน",
-                btnText: "TH"
-            },
-            en: {
-                science: "Science",
-                math: "Mathematics",
-                reading: "Reading",
-                btnText: "EN"
-            }
-        };
-
-        function toggleLanguage() {
-            currentLang = currentLang === 'th' ? 'en' : 'th';
-            
-            txtScience.textContent = translations[currentLang].science;
-            txtMath.textContent = translations[currentLang].math;
-            txtReading.textContent = translations[currentLang].reading;
-            langBtn.textContent = translations[currentLang].btnText;
-        }
-
-        langBtn.addEventListener('click', toggleLanguage);
     </script>
 </body>
 </html>
