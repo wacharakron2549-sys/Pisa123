@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PISA Kids Interactive Learning</title>
+    
+    <!-- ฟอนต์ Mali สไตล์การ์ตูนน่ารัก -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Mali:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Mali', cursive, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* ================= ปรับแต่งภาพพื้นหลัง ================= */
+        body {
+            background-image: url('bg.png'); /* เรียกใช้ภาพพื้นหลัง */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-color: #3b82f6; /* สีสำรองระหว่างรอโหลดภาพ */
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+            padding: 10px;
+        }
+
+        /* ================= 1. แถบควบคุมด้านบน (Golden UI Header) ================= */
+        .top-nav-bar {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            display: flex;
+            gap: 12px;
+            z-index: 1002;
+        }
+
+        /* ปุ่มกลมสีทอง 3D เงาวับ */
+        .btn-gold {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 3px solid #ffe57f;
+            background: radial-gradient(circle at 35% 30%, #fff176 0%, #fbc02d 50%, #f57f17 100%);
+            box-shadow: 0 5px 0 #b26a00, 0 8px 15px rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.3rem;
+            cursor: pointer;
+            color: #5d3900;
+            font-weight: 800;
+            transition: all 0.15s ease;
+            user-select: none;
+        }
+
+        .btn-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 0 #b26a00, 0 10px 18px rgba(0, 0, 0, 0.6);
+        }
+
+        .btn-gold:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 #b26a00, 0 3px 5px rgba(0, 0, 0, 0.4);
+        }
+
+        /* ================= 2. ส่วนหน้าหลัก (Lingokids Style Cards) ================= */
+        .app-container {
+            width: 100%;
+            max-width: 1000px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .app-header {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px 20px 20px 20px;
+        }
+
+        .brand-logo {
+            font-size: 2.6rem;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-shadow: 0 4px 12px rgba(0, 0, 0, 0.6), 2px 2px 0px #000;
+        }
+
+        .brand-logo span { color: #ffeb3b; }
+
+        .cards-scroll-wrapper {
+            width: 100%;
+            display: flex;
+            gap: 20px;
+            overflow-x: auto;
+            padding: 20px 15px 35px 15px;
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none;
+        }
+
+        .cards-scroll-wrapper::-webkit-scrollbar { display: none; }
+
+        .category-card {
+            position: relative;
+            flex: 0 0 280px;
+            height: 390px;
+            border-radius: 36px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 15px 25px 15px;
+            cursor: pointer;
+            scroll-snap-align: center;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.4);
+            border: 4px solid #ffffff;
+        }
+
+        .category-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 35px rgba(0, 0, 0, 0.6);
+        }
+
+        .card-top-tab {
+            position: absolute;
+            top: -16px;
+            width: 140px;
+            height: 20px;
+            border-radius: 12px 12px 0 0;
+            border: 4px solid #ffffff;
+            border-bottom: none;
+        }
+
+        /* ธีมสีการ์ด */
+        .card-piti { background: linear-gradient(180deg, #9ae6b4 0%, #68d391 100%); }
+        .card-piti .card-top-tab { background: #48bb78; }
+
+        .card-soon-1 { background: linear-gradient(180deg, #b794f4 0%, #805ad5 100%); opacity: 0.9; }
+        .card-soon-1 .card-top-tab { background: #6b46c1; }
+
+        .card-soon-2 { background: linear-gradient(180deg, #fbd38d 0%, #ed8936 100%); opacity: 0.9; }
+        .card-soon-2 .card-top-tab { background: #dd6b20; }
+
+        /* รูปภาพปิติกลางการ์ด */
+        .card-illustration {
+            width: 160px;
+            height: 160px;
+            background: rgba(255, 255, 255, 0.35);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 15px;
+            overflow: hidden;
+            box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-illustration img {
+            width: 85%;
+            height: 85%;
+            object-fit: contain;
+            filter: drop-shadow(0 5px 8px rgba(0,0,0,0.2));
+        }
+
+        .card-badge-tag {
+            background: rgba(0, 0, 0, 0.7);
+            color: #ffffff;
+            padding: 8px 24px;
+            border-radius: 25px;
+            font-size: 1.15rem;
+            font-weight: 700;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-number {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            background: #ffffff;
+            color: #222;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 800;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+
+        /* ================= 3. ส่วน Interactive Video Player ================= */
+        .player-container {
+            display: none;
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            background: #000;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 4px solid #334155;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+        }
+
+        video {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            display: block;
+            background-color: #000;
+            object-fit: cover;
+        }
+
+        /* Overlay ช้อยตัวเลือก */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.94);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 999;
+            overflow-y: auto;
+        }
+
+        .overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .question-box {
+            text-align: center;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+
+        .question-box h2 {
+            color: #ffca28;
+            font-size: 1.15rem;
+            margin-bottom: 6px;
+            line-height: 1.35;
+        }
+
+        .question-box p {
+            color: #cbd5e1;
+            font-size: 0.88rem;
+            line-height: 1.3;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            width: 100%;
+            max-width: 650px;
+        }
+
+        .btn-choice {
+            padding: 12px 15px;
+            font-size: 0.95rem;
+            background: #1e293b;
+            color: #ffffff;
+            border: 2px solid #475569;
+            border-radius: 12px;
+            cursor: pointer;
+            text-align: left;
+            line-height: 1.3;
+            transition: all 0.2s ease;
+        }
+
+        .btn-choice:hover, .btn-choice:active {
+            background: #e11d48;
+            border-color: #fb7185;
+            transform: scale(1.02);
+        }
+
+        /* กล่องเฉลย */
+        .explanation-card {
+            position: absolute;
+            bottom: 15px;
+            left: 4%;
+            width: 92%;
+            background: rgba(15, 23, 42, 0.96);
+            border-left: 6px solid #38bdf8;
+            padding: 14px 18px;
+            border-radius: 10px;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.8);
+        }
+
+        .explanation-card.correct { border-left-color: #22c55e; }
+        .explanation-card.wrong { border-left-color: #ef4444; }
+
+        .explanation-card h3 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .explanation-card.correct h3 { color: #22c55e !important; }
+        .explanation-card.wrong h3 { color: #ef4444 !important; }
+
+        .explanation-card p {
+            color: #ffffff !important;
+            font-size: 0.88rem;
+            line-height: 1.4;
+        }
+
+        .btn-replay {
+            margin-top: 10px;
+            padding: 6px 16px;
+            background: #38bdf8;
+            color: #0f172a;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.88rem;
+            font-weight: bold;
+        }
+
+        /* ================= 4. Responsive สำหรับมือถือ ================= */
+        @media screen and (max-width: 600px) {
+            body { padding: 0; }
+            .top-nav-bar { top: 10px; right: 10px; gap: 8px; }
+            .btn-gold { width: 42px; height: 42px; font-size: 1.1rem; }
+            
+            .category-card {
+                flex: 0 0 240px;
+                height: 340px;
+                border-radius: 28px;
+            }
+
+            .card-illustration { width: 130px; height: 130px; }
+            .card-badge-tag { font-size: 1rem; padding: 6px 18px; }
+
+            .player-container {
+                max-width: 100vw;
+                height: 100vh;
+                border: none;
+                border-radius: 0;
+            }
+
+            video { aspect-ratio: 9 / 16; height: 100vh; }
+            .overlay { padding: 25px 12px; }
+            .question-box h2 { font-size: 0.95rem; }
+            .options-grid { grid-template-columns: 1fr; gap: 8px; }
+            .btn-choice { padding: 10px 12px; font-size: 0.85rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- แถบปุ่มควบคุมสีทอง (ขวาบน) -->
+    <div class="top-nav-bar">
+        <button id="muteBtn" class="btn-gold" onclick="toggleMute()" title="เปิด/ปิดเสียง">🔊</button>
+        <button id="langBtn" class="btn-gold" onclick="toggleLanguage()" title="เปลี่ยนภาษา">TH</button>
+        <button id="homeBtn" class="btn-gold" onclick="backToMenu()" title="กลับหน้าแรก">🏠</button>
+    </div>
+
+    <!-- 1. หน้าต่างเมนูเลือกหมวดหมู่ -->
+    <div id="startScreen" class="app-container">
+        <div class="app-header">
+            <div class="brand-logo">PISA<span>KIDS</span></div>
+        </div>
+
+        <div class="cards-scroll-wrapper">
+            <!-- หมวดที่ 1: ปิติกับอุณหภูมิ -->
+            <div class="category-card card-piti" onclick="startQuestion('intro.mp4')">
+                <div class="card-top-tab"></div>
+                <div class="card-number">1</div>
+                <div class="card-illustration">
+                    <img src="piti.png" alt="Piti Character" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'><text y=\'.9em\' font-size=\'90\'>👦</text></svg>'">
+                </div>
+                <div class="card-badge-tag" id="card1Text">ปิติกับอุณหภูมิ</div>
+            </div>
+
+            <!-- หมวดที่ 2: Coming Soon -->
+            <div class="category-card card-soon-1" onclick="alert(currentLang==='th'?'หมวดที่ 2 กำลังพัฒนา เร็วๆ นี้ครับ!':'Coming soon!')">
+                <div class="card-top-tab"></div>
+                <div class="card-number">2</div>
+                <div class="card-illustration" style="font-size: 4rem;">🧪</div>
+                <div class="card-badge-tag" id="card2Text">เร็วๆ นี้ (Soon)</div>
+            </div>
+
+            <!-- หมวดที่ 3: Coming Soon -->
+            <div class="category-card card-soon-2" onclick="alert(currentLang==='th'?'หมวดที่ 3 กำลังพัฒนา เร็วๆ นี้ครับ!':'Coming soon!')">
+                <div class="card-top-tab"></div>
+                <div class="card-number">3</div>
+                <div class="card-illustration" style="font-size: 4rem;">🚀</div>
+                <div class="card-badge-tag" id="card3Text">เร็วๆ นี้ (Soon)</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. เครื่องเล่นวิดีโอ Interactive -->
+    <div id="playerContainer" class="player-container">
+        <video id="videoPlayer" controls playsinline>
+            <source id="videoSource" src="intro.mp4" type="video/mp4">
+            เบราว์เซอร์ของคุณไม่รองรับการเล่นวิดีโอ
+        </video>
+
+        <!-- Overlay ตัวเลือก -->
+        <div id="quizOverlay" class="overlay">
+            <div class="question-box">
+                <h2 id="qTitle">คำถาม: ผ่านไป 10 นาที อุณหภูมิของกาแฟและน้ำแร่น่าจะเป็นเท่าใด?</h2>
+                <p id="qSubtitle">วางถ้วยไว้ในห้องอุณหภูมิ 20°C (กาแฟเริ่มต้น 90°C / น้ำแร่เริ่มต้น 5°C)</p>
+            </div>
+            <div class="options-grid">
+                <button class="btn-choice" id="optA" onclick="selectChoice('A')">ก) 70°C และ 10°C</button>
+                <button class="btn-choice" id="optB" onclick="selectChoice('B')">ข) 90°C และ 5°C</button>
+                <button class="btn-choice" id="optC" onclick="selectChoice('C')">ค) 70°C และ 25°C</button>
+                <button class="btn-choice" id="optD" onclick="selectChoice('D')">ง) 20°C และ 20°C</button>
+            </div>
+        </div>
+
+        <!-- กล่องเฉลย -->
+        <div id="explanationCard" class="explanation-card">
+            <h3 id="expTitle"></h3>
+            <p id="expText"></p>
+            <button id="retryBtn" class="btn-replay" onclick="resetToIntro()">ลองใหม่อีกครั้ง</button>
+        </div>
+    </div>
+
+<script>
+    const startScreen = document.getElementById('startScreen');
+    const playerContainer = document.getElementById('playerContainer');
+    const videoPlayer = document.getElementById('videoPlayer');
+    const videoSource = document.getElementById('videoSource');
+    const quizOverlay = document.getElementById('quizOverlay');
+    const expCard = document.getElementById('explanationCard');
+    const expTitle = document.getElementById('expTitle');
+    const expText = document.getElementById('expText');
+    const retryBtn = document.getElementById('retryBtn');
+    const muteBtn = document.getElementById('muteBtn');
+    const langBtn = document.getElementById('langBtn');
+
+    let isIntroFinished = false;
+    let currentChoice = '';
+    let currentLang = 'th';
+
+    const i18n = {
+        th: {
+            card1: "ปิติกับอุณหภูมิ",
+            card2: "เร็วๆ นี้ (Soon)",
+            card3: "เร็วๆ นี้ (Soon)",
+            qTitle: "คำถาม: ผ่านไป 10 นาที อุณหภูมิของกาแฟและน้ำแร่น่าจะเป็นเท่าใด?",
+            qSubtitle: "วางถ้วยไว้ในห้องอุณหภูมิ 20°C (กาแฟเริ่มต้น 90°C / น้ำแร่เริ่มต้น 5°C)",
+            optA: "ก) 70°C และ 10°C",
+            optB: "ข) 90°C และ 5°C",
+            optC: "ค) 70°C และ 25°C",
+            optD: "ง) 20°C และ 20°C",
+            correctTitle: "✅ ถูกต้อง! (ตอบข้อ ก)",
+            correctExp: "เนื่องจากความร้อนถ่ายโอนจากอุณหภูมิสูงไปต่ำ กาแฟจึงเย็นลง และน้ำแร่จะอุ่นขึ้น แต่เวลา 10 นาทียังไม่เพียงพอที่จะปรับจนเท่ากับอุณหภูมิห้อง (20°C)",
+            wrongTitle: "❌ ยังไม่ถูกต้อง",
+            expB: "ผ่านไป 10 นาที อุณหภูมิย่อมมีการเปลี่ยนแปลง ไม่สามารถเท่าเดิมได้ครับ",
+            expC: "น้ำแร่ไม่สามารถรับความร้อนจนอุณหภูมิสูงกว่าห้อง (20°C) ได้เองตามธรรมชาติครับ",
+            expD: "การจะปรับอุณหภูมิให้เท่ากับห้องพอดี (สมดุลความร้อน) ต้องใช้เวลานานกว่า 10 นาทีครับ",
+            retryBtn: "ลองใหม่อีกครั้ง"
+        },
+        en: {
+            card1: "Piti & Temperature",
+            card2: "Coming Soon",
+            card3: "Coming Soon",
+            qTitle: "Question: What will be the temperature of the coffee and water after 10 minutes?",
+            qSubtitle: "Placed in a room at 20°C (Coffee initial: 90°C / Water initial: 5°C)",
+            optA: "A) 70°C and 10°C",
+            optB: "B) 90°C and 5°C",
+            optC: "C) 70°C and 25°C",
+            optD: "D) 20°C and 20°C",
+            correctTitle: "✅ Correct! (Option A)",
+            correctExp: "Heat transfers from higher to lower temperatures. Coffee cools down and water warms up, but 10 minutes is not enough to reach the room temperature (20°C).",
+            wrongTitle: "❌ Incorrect",
+            expB: "After 10 minutes, temperatures must change; they cannot stay the same.",
+            expC: "Water cannot naturally become hotter than the room temperature (20°C).",
+            expD: "Reaching thermal equilibrium (room temp) takes much longer than 10 minutes.",
+            retryBtn: "Try Again"
+        }
+    };
+
+    function toggleLanguage() {
+        currentLang = currentLang === 'th' ? 'en' : 'th';
+        langBtn.innerText = currentLang.toUpperCase();
+        updateLanguageUI();
+    }
+
+    function updateLanguageUI() {
+        const t = i18n[currentLang];
+        document.getElementById('card1Text').innerText = t.card1;
+        document.getElementById('card2Text').innerText = t.card2;
+        document.getElementById('card3Text').innerText = t.card3;
+        document.getElementById('qTitle').innerText = t.qTitle;
+        document.getElementById('qSubtitle').innerText = t.qSubtitle;
+        document.getElementById('optA').innerText = t.optA;
+        document.getElementById('optB').innerText = t.optB;
+        document.getElementById('optC').innerText = t.optC;
+        document.getElementById('optD').innerText = t.optD;
+        retryBtn.innerText = t.retryBtn;
+
+        if (expCard.style.display === 'block') {
+            showExplanation();
+        }
+    }
+
+    function toggleMute() {
+        videoPlayer.muted = !videoPlayer.muted;
+        muteBtn.innerText = videoPlayer.muted ? '🔇' : '🔊';
+    }
+
+    function startQuestion(videoFile) {
+        startScreen.style.display = 'none';
+        playerContainer.style.display = 'block';
+        
+        videoSource.src = videoFile;
+        videoPlayer.load();
+        videoPlayer.play();
+    }
+
+    videoPlayer.addEventListener('ended', function() {
+        if (!isIntroFinished) {
+            quizOverlay.classList.add('active');
+            isIntroFinished = true;
+        } else {
+            showExplanation();
+        }
+    });
+
+    function selectChoice(choice) {
+        currentChoice = choice;
+        quizOverlay.classList.remove('active');
+        
+        if (choice === 'A') playNewVideo('ending_A.mp4');
+        else if (choice === 'B') playNewVideo('ending_B.mp4');
+        else if (choice === 'C') playNewVideo('ending_C.mp4');
+        else if (choice === 'D') playNewVideo('ending_D.mp4');
+    }
+
+    function playNewVideo(videoFileName) {
+        videoSource.src = videoFileName;
+        videoPlayer.load();
+        videoPlayer.play();
+    }
+
+    function showExplanation() {
+        const t = i18n[currentLang];
+        expCard.style.display = 'block';
+
+        if (currentChoice === 'A') {
+            expCard.className = 'explanation-card correct';
+            expTitle.innerText = t.correctTitle;
+            expText.innerText = t.correctExp;
+            retryBtn.style.display = 'none';
+        } else {
+            expCard.className = 'explanation-card wrong';
+            expTitle.innerText = t.wrongTitle;
+            
+            if (currentChoice === 'B') expText.innerText = t.expB;
+            else if (currentChoice === 'C') expText.innerText = t.expC;
+            else if (currentChoice === 'D') expText.innerText = t.expD;
+            
+            retryBtn.style.display = 'inline-block';
+        }
+    }
+
+    function resetToIntro() {
+        expCard.style.display = 'none';
+        isIntroFinished = false;
+        playNewVideo('intro.mp4');
+    }
+
+    function backToMenu() {
+        videoPlayer.pause();
+        window.location.href = "index.html";
+    }
+</script>
+
+</body>
+</html>
